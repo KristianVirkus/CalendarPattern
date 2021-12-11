@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	<LangVersion>latest</LangVersion>
+	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<Description>Quickly calculates occurrences of dates &amp; times matching user-defined patterns, e.g. specific day+month combinations. Invalid dates (e.g. 31th of February), leap years, and timezone-based daylight saving are regarded in calculations.</Description>
+	<Copyright>(c) 2021, Kristian Virkus</Copyright>
+	<PackageTags>date time datetime calculation pattern match next previous timezone</PackageTags>
+	<FileVersion>1.0.0.0</FileVersion>
+	<Authors>KristianVirkus</Authors>
+	<AssemblyVersion>1.0.0.0</AssemblyVersion>
+  </PropertyGroup>
+
+</Project>
