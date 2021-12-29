@@ -385,6 +385,142 @@ namespace CalendarPattern.UnitTests
         {
             public class EdgeBeginning
             {
+                public class Misc
+                {
+                    [Test]
+                    public void AtMaximumWhileMinimumWanted_Should_AdvanceToMinimumInNoTime()
+                    {
+                        // Arrange
+                        var yearPattern = new YearPattern(year: (ushort)DateTime.MinValue.Year);
+                        var monthPattern = new MonthPattern(month: (byte)DateTime.MinValue.Month);
+                        var dayPattern = new DayPattern(day: (byte)DateTime.MinValue.Day);
+                        var hourPattern = new HourPattern(hour: (byte)DateTime.MinValue.Hour);
+                        var minutePattern = new MinutePattern(minute: (byte)DateTime.MinValue.Minute);
+                        var secondPattern = new SecondPattern(second: (byte)DateTime.MinValue.Second);
+                        var now = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
+                        var tz = TimeZoneInfo.Utc;
+
+                        // Act
+                        var sw = new Stopwatch();
+                        sw.Start();
+                        var result = Calculator.Previous(patterns: new IDateTimePattern[] { yearPattern, monthPattern, dayPattern, hourPattern, minutePattern, secondPattern }, now, tz, DateTimeRangeEdge.Beginning, DebugPrint);
+
+                        // Assert
+                        sw.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(1));
+                        result.Should().Be(DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc));
+                    }
+                }
+
+                public class EdgeApplication
+                {
+                    [Test]
+                    public void AtAnyTimeWithYearPattern_Should_ApplyBeginningEdgeToMonthsAndLowerRanked()
+                    {
+                        // Arrange
+                        var yearPattern = new YearPattern(year: 1999);
+                        var now = new DateTime(2000, 06, 14, 12, 30, 30, DateTimeKind.Utc);
+                        var tz = TimeZoneInfo.Utc;
+
+                        // Act
+                        var sw = new Stopwatch();
+                        sw.Start();
+                        var result = Calculator.Previous(patterns: new IDateTimePattern[] { yearPattern }, now, tz, DateTimeRangeEdge.Beginning, DebugPrint);
+
+                        // Assert
+                        sw.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(1));
+                        result.Should().Be(new DateTime(1999, 01, 01, 00, 00, 00, DateTimeKind.Utc));
+                    }
+
+                    [Test]
+                    public void AtAnyTimeWithMonthPattern_Should_ApplyBeginningEdgeToDaysAndLowerRanked()
+                    {
+                        // Arrange
+                        var monthPattern = new MonthPattern(month: 2);
+                        var now = new DateTime(2000, 03, 14, 12, 30, 30, DateTimeKind.Utc);
+                        var tz = TimeZoneInfo.Utc;
+
+                        // Act
+                        var sw = new Stopwatch();
+                        sw.Start();
+                        var result = Calculator.Previous(patterns: new IDateTimePattern[] { monthPattern }, now, tz, DateTimeRangeEdge.Beginning, DebugPrint);
+
+                        // Assert
+                        sw.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(1));
+                        result.Should().Be(new DateTime(2000, 02, 01, 00, 00, 00, DateTimeKind.Utc));
+                    }
+
+                    [Test]
+                    public void AtAnyTimeWithDayPattern_Should_ApplyBeginningEdgeToHoursAndLowerRanked()
+                    {
+                        // Arrange
+                        var dayPattern = new DayPattern(day: 2);
+                        var now = new DateTime(2000, 06, 03, 12, 30, 30, DateTimeKind.Utc);
+                        var tz = TimeZoneInfo.Utc;
+
+                        // Act
+                        var sw = new Stopwatch();
+                        sw.Start();
+                        var result = Calculator.Previous(patterns: new IDateTimePattern[] { dayPattern }, now, tz, DateTimeRangeEdge.Beginning, DebugPrint);
+
+                        // Assert
+                        sw.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(1));
+                        result.Should().Be(new DateTime(2000, 06, 02, 00, 00, 00, DateTimeKind.Utc));
+                    }
+
+                    [Test]
+                    public void AtAnyTimeWithHourPattern_Should_ApplyBeginningEdgeToMinutesAndLowerRanked()
+                    {
+                        // Arrange
+                        var hourPattern = new HourPattern(hour: 2);
+                        var now = new DateTime(2000, 06, 14, 03, 30, 30, DateTimeKind.Utc);
+                        var tz = TimeZoneInfo.Utc;
+
+                        // Act
+                        var sw = new Stopwatch();
+                        sw.Start();
+                        var result = Calculator.Previous(patterns: new IDateTimePattern[] { hourPattern }, now, tz, DateTimeRangeEdge.Beginning, DebugPrint);
+
+                        // Assert
+                        sw.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(1));
+                        result.Should().Be(new DateTime(2000, 06, 14, 02, 00, 00, DateTimeKind.Utc));
+                    }
+
+                    [Test]
+                    public void AtAnyTimeWithMinutePattern_Should_ApplyBeginningEdgeToSecondsAndLowerRanked()
+                    {
+                        // Arrange
+                        var minutePattern = new MinutePattern(minute: 2);
+                        var now = new DateTime(2000, 06, 14, 12, 03, 30, DateTimeKind.Utc);
+                        var tz = TimeZoneInfo.Utc;
+
+                        // Act
+                        var sw = new Stopwatch();
+                        sw.Start();
+                        var result = Calculator.Previous(patterns: new IDateTimePattern[] { minutePattern }, now, tz, DateTimeRangeEdge.Beginning, DebugPrint);
+
+                        // Assert
+                        sw.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(1));
+                        result.Should().Be(new DateTime(2000, 06, 14, 12, 02, 00, DateTimeKind.Utc));
+                    }
+
+                    [Test]
+                    public void AtAnyTimeWithSecondPattern_Should_ApplyBeginningEdgeToMillisecondsAndLowerRanked()
+                    {
+                        // Arrange
+                        var secondPattern = new SecondPattern(second: 2);
+                        var now = new DateTime(2000, 06, 14, 12, 30, 03, DateTimeKind.Utc);
+                        var tz = TimeZoneInfo.Utc;
+
+                        // Act
+                        var sw = new Stopwatch();
+                        sw.Start();
+                        var result = Calculator.Previous(patterns: new IDateTimePattern[] { secondPattern }, now, tz, DateTimeRangeEdge.Beginning, DebugPrint);
+
+                        // Assert
+                        sw.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(1));
+                        result.Should().Be(new DateTime(2000, 06, 14, 12, 30, 02, DateTimeKind.Utc));
+                    }
+                }
             }
 
             public class EdgeEnd
