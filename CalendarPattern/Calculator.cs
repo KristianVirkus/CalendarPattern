@@ -12,10 +12,19 @@ namespace CalendarPattern
         /// <summary>
         /// Calculates the next point in time when all patterns match.
         /// </summary>
-        /// <remarks>
-        /// TODO Can edge be removed? Aligning to edges can be done by the caller because only they know which date & time
-        /// components need to be considered.
-        /// </remarks>
+        /// <param name="patterns">The date & time patterns to consider.</param>
+        /// <param name="startTime">The starting point in time.</param>
+        /// <param name="tz">The time zone calculations take place in.</param>
+        /// <returns>The previous date & time or null if there is no next date & time possible.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="patterns"/> or
+        ///     <paramref name="tz"/> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="patterns"/> is empty.</exception>
+        public static DateTime? Next(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz)
+            => Next(patterns, startTime, tz, null, null);
+
+        /// <summary>
+        /// Calculates the next point in time when all patterns match.
+        /// </summary>
         /// <param name="patterns">The date & time patterns to consider.</param>
         /// <param name="startTime">The starting point in time.</param>
         /// <param name="tz">The time zone calculations take place in.</param>
@@ -30,20 +39,16 @@ namespace CalendarPattern
         /// <summary>
         /// Calculates the next point in time when all patterns match.
         /// </summary>
-        /// <remarks>
-        /// TODO Can edge be removed? Aligning to edges can be done by the caller because only they know which date & time
-        /// components need to be considered.
-        /// </remarks>
         /// <param name="patterns">The date & time patterns to consider.</param>
         /// <param name="startTime">The starting point in time.</param>
         /// <param name="tz">The time zone calculations take place in.</param>
-        /// <param name="edge">The requested date & time range edge.</param>
+        /// <param name="edge">The optional requested date & time range edge.</param>
         /// <param name="debugIterationCallback">The callback method to invoke for each iteration for debugging.</param>
         /// <returns>The previous date & time or null if there is no next date & time possible.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="patterns"/> or
         ///     <paramref name="tz"/> is null.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="patterns"/> is empty.</exception>
-        internal static DateTime? Next(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz, DateTimeRangeEdge edge,
+        internal static DateTime? Next(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz, DateTimeRangeEdge? edge,
             Action<DebugIterationEventArgs> debugIterationCallback)
         {
             if (patterns is null) throw new ArgumentNullException(nameof(patterns));
@@ -60,8 +65,12 @@ namespace CalendarPattern
                 // If all patterns already match, then finish.
                 if (patterns.All(p => p.Matches(timeResult)))
                 {
-                    var lowerRankedDateTimeComponents = Helper.GetLowerRankedDateTimeComponents(patterns.Select(p => p.AffectedDateTimeComponents));
-                    timeResult = Helper.AlignDateTimeComponentsToEdge(timeResult, edge, lowerRankedDateTimeComponents);
+                    if (edge is not null)
+                    {
+                        var lowerRankedDateTimeComponents = Helper.GetLowerRankedDateTimeComponents(patterns.Select(p => p.AffectedDateTimeComponents));
+                        timeResult = Helper.AlignDateTimeComponentsToEdge(timeResult, edge.Value, lowerRankedDateTimeComponents);
+                    }
+
                     return timeResult;
                 }
 
@@ -77,10 +86,19 @@ namespace CalendarPattern
         /// <summary>
         /// Calculates the previous point in time when all patterns match.
         /// </summary>
-        /// <remarks>
-        /// TODO Can edge be removed? Aligning to edges can be done by the caller because only they know which date & time
-        /// components need to be considered.
-        /// </remarks>
+        /// <param name="patterns">The date & time patterns to consider.</param>
+        /// <param name="startTime">The starting point in time.</param>
+        /// <param name="tz">The time zone calculations take place in.</param>
+        /// <returns>The previous date & time or null if there is no previous date & time possible.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="patterns"/> or
+        ///     <paramref name="tz"/> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="patterns"/> is empty.</exception>
+        public static DateTime? Previous(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz)
+            => Previous(patterns, startTime, tz, null, null);
+
+        /// <summary>
+        /// Calculates the previous point in time when all patterns match.
+        /// </summary>
         /// <param name="patterns">The date & time patterns to consider.</param>
         /// <param name="startTime">The starting point in time.</param>
         /// <param name="tz">The time zone calculations take place in.</param>
@@ -95,20 +113,16 @@ namespace CalendarPattern
         /// <summary>
         /// Calculates the previous point in time when all patterns match.
         /// </summary>
-        /// <remarks>
-        /// TODO Can edge be removed? Aligning to edges can be done by the caller because only they know which date & time
-        /// components need to be considered.
-        /// </remarks>
         /// <param name="patterns">The date & time patterns to consider.</param>
         /// <param name="startTime">The starting point in time.</param>
         /// <param name="tz">The time zone calculations take place in.</param>
-        /// <param name="edge">The requested date & time range edge.</param>
+        /// <param name="edge">The optional requested date & time range edge.</param>
         /// <param name="debugIterationCallback">The callback method to invoke for each iteration for debugging.</param>
         /// <returns>The previous date & time or null if there is no previous date & time possible.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="patterns"/> or
         ///     <paramref name="tz"/> is null.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="patterns"/> is empty.</exception>
-        internal static DateTime? Previous(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz, DateTimeRangeEdge edge,
+        internal static DateTime? Previous(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz, DateTimeRangeEdge? edge,
             Action<DebugIterationEventArgs> debugIterationCallback)
         {
             if (patterns is null) throw new ArgumentNullException(nameof(patterns));
@@ -125,8 +139,12 @@ namespace CalendarPattern
                 // If all patterns already match, then finish.
                 if (patterns.All(p => p.Matches(timeResult)))
                 {
-                    var lowerRankedDateTimeComponents = Helper.GetLowerRankedDateTimeComponents(patterns.Select(p => p.AffectedDateTimeComponents));
-                    timeResult = Helper.AlignDateTimeComponentsToEdge(timeResult, edge, lowerRankedDateTimeComponents);
+                    if (edge is not null)
+                    {
+                        var lowerRankedDateTimeComponents = Helper.GetLowerRankedDateTimeComponents(patterns.Select(p => p.AffectedDateTimeComponents));
+                        timeResult = Helper.AlignDateTimeComponentsToEdge(timeResult, edge.Value, lowerRankedDateTimeComponents);
+                    }
+
                     return timeResult;
                 }
 
