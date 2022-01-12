@@ -41,7 +41,7 @@ namespace CalendarPattern
 
                 while (true)
                 {
-                    if (!Helper.ComplyWithBound(now, candidate, DateTime.MaxValue, DateTimeComponent.Day, this.Day, Helper.CalculationDirection.Next))
+                    if (!Helper.ComplyWithBound(candidate, DateTime.MaxValue, DateTimeComponent.Day, this.Day, Helper.CalculationDirection.Next))
                         return null;
 
                     if ((candidate.Day >= this.Day && firstIteration)
@@ -75,7 +75,7 @@ namespace CalendarPattern
 
                 while (true)
                 {
-                    if (!Helper.ComplyWithBound(now, candidate, DateTime.MinValue, DateTimeComponent.Day, this.Day, Helper.CalculationDirection.Previous))
+                    if (!Helper.ComplyWithBound(candidate, DateTime.MinValue, DateTimeComponent.Day, this.Day, Helper.CalculationDirection.Previous))
                         return null;
 
                     if ((candidate.Day <= this.Day && firstIteration)

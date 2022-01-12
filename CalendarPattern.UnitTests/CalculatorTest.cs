@@ -410,6 +410,30 @@ namespace CalendarPattern.UnitTests
                     result.Should().Be(new DateTime(2001, 01, 01, 00, 00, 00, DateTimeKind.Utc));
                 }
             }
+
+            public class Misc
+            {
+                [Test]
+                public void NextOverloads_ShouldHave_DifferentResults()
+                {
+                    // Arrange
+                    var monthPattern = new MonthPattern(month: 2);
+                    var now = new DateTime(2000, 01, 14, 12, 30, 30, DateTimeKind.Utc);
+                    var tz = TimeZoneInfo.Utc;
+
+                    // Act
+                    var sw = new Stopwatch();
+                    sw.Start();
+                    var resultPublicWithoutEdge = Calculator.Default.Next(patterns: new IDateTimePattern[] { monthPattern }, now, tz);
+                    var resultPublicWithEdgeEnd = Calculator.Default.Next(patterns: new IDateTimePattern[] { monthPattern }, now, tz, DateTimeRangeEdge.End);
+                    var resultInternalWithEdgeEnd = CallNext(patterns: new IDateTimePattern[] { monthPattern }, now, tz, DateTimeRangeEdge.End);
+
+                    // Assert
+                    sw.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(1));
+                    resultPublicWithoutEdge.Should().NotBe(resultPublicWithEdgeEnd);
+                    resultPublicWithEdgeEnd.Should().Be(resultInternalWithEdgeEnd);
+                }
+            }
         }
 
         public class Previous
@@ -799,20 +823,44 @@ namespace CalendarPattern.UnitTests
                     result.Should().Be(new DateTime(1999, 12, 31, 23, 59, 59, DateTimeKind.Utc).Add(Constants.SecondMaximum));
                 }
             }
+
+            public class Misc
+            {
+                [Test]
+                public void PreviousOverloads_ShouldHave_DifferentResults()
+                {
+                    // Arrange
+                    var monthPattern = new MonthPattern(month: 2);
+                    var now = new DateTime(2000, 01, 14, 12, 30, 30, DateTimeKind.Utc);
+                    var tz = TimeZoneInfo.Utc;
+
+                    // Act
+                    var sw = new Stopwatch();
+                    sw.Start();
+                    var resultPublicWithoutEdge = Calculator.Default.Previous(patterns: new IDateTimePattern[] { monthPattern }, now, tz);
+                    var resultPublicWithEdgeBeginning = Calculator.Default.Previous(patterns: new IDateTimePattern[] { monthPattern }, now, tz, DateTimeRangeEdge.Beginning);
+                    var resultInternalWithEdgeBeginning = CallPrevious(patterns: new IDateTimePattern[] { monthPattern }, now, tz, DateTimeRangeEdge.Beginning);
+
+                    // Assert
+                    sw.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(1));
+                    resultPublicWithoutEdge.Should().NotBe(resultPublicWithEdgeBeginning);
+                    resultPublicWithEdgeBeginning.Should().Be(resultInternalWithEdgeBeginning);
+                }
+            }
         }
 
         static DateTime? CallNext(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz, DateTimeRangeEdge? edge = null)
         => DebugIterationCallback is null
             ? edge is null
-                ? Calculator.Next(patterns, startTime, tz)
-                : Calculator.Next(patterns, startTime, tz, edge.Value)
+                ? Calculator.Default.Next(patterns, startTime, tz)
+                : Calculator.Default.Next(patterns, startTime, tz, edge.Value)
             : Calculator.Next(patterns, startTime, tz, edge, DebugIterationCallback);
 
         static DateTime? CallPrevious(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz, DateTimeRangeEdge? edge = null)
         => DebugIterationCallback is null
             ? edge is null
-                ? Calculator.Previous(patterns, startTime, tz)
-                : Calculator.Previous(patterns, startTime, tz, edge.Value)
+                ? Calculator.Default.Previous(patterns, startTime, tz)
+                : Calculator.Default.Previous(patterns, startTime, tz, edge.Value)
             : Calculator.Previous(patterns, startTime, tz, edge, DebugIterationCallback);
 
         static void DebugPrint2(DebugIterationEventArgs e)

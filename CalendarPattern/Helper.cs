@@ -53,7 +53,7 @@ namespace CalendarPattern
                 DateTimeComponent.Minute => (ushort)dt.Minute,
                 DateTimeComponent.Second => (ushort)dt.Second,
                 DateTimeComponent.Millisecond => (ushort)dt.Millisecond,
-                DateTimeComponent.Ticks => (ushort)dt.Ticks,
+                DateTimeComponent.Ticks => (ushort)(dt-new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Millisecond, dt.Kind)).Ticks,
                 _ => throw new NotSupportedException(nameof(component))
             };
 
@@ -143,9 +143,15 @@ namespace CalendarPattern
         /// <summary>
         /// Checks whether the arguments comply with the bound.
         /// </summary>
-        /// <param name="start">The starting point in time for calculations.</param>
-        /// <param name="candidate">The iteration's point in time candidate as result.</param>
-        /// <param name="bound">The bound to comply with.</param>
+        /// <remarks>
+        /// Depending on the date & time patterns used, this method could deliver false
+        /// positives for use cases with patterns which are too complex for a simple generic
+        /// method to check the compliance with the bound.
+        /// </remarks>
+        /// <param name="dt">The date & time to check. Must be the same time zone as
+        ///     <paramref name="bound"/>.</param>
+        /// <param name="bound">The bound to comply with. Must be the same time zone as
+        ///     <paramref name="dt"/>.</param>
         /// <param name="component">The date & time component aimed at.</param>
         /// <param name="componentValue">The date & time component's value aimed at.</param>
         /// <param name="direction">Whether the next or previous occurrence of the
@@ -154,40 +160,68 @@ namespace CalendarPattern
         ///     false otherwise.</returns>
         /// <exception cref="NotSupportedException">Thrown if <paramref name="component"/> or
         ///     <paramref name="direction"/> is not supported.</exception>
-        public static bool ComplyWithBound(DateTime start, DateTime candidate, DateTime bound, DateTimeComponent component, int componentValue, CalculationDirection direction)
+        public static bool ComplyWithBound(DateTime dt, DateTime bound, DateTimeComponent component,
+            int componentValue, CalculationDirection direction)
         {
-            // See if all higher ranked date & time components are already maxed out. If not, quit to move on.
+            // See if all higher ranked date & time components are already above the bound or below
+            // the bound, respectively. If within the bound, there is a chance, the candidate date & time
+            // could be with its new component value also within the bound.
             foreach (var c in Helper.GetHigherRankedDateTimeComponents(usedComponents: new[] { component }))
             {
-                if (Helper.GetDateTimeComponent(candidate, c) != Helper.GetDateTimeComponent(bound, c))
-                    return true;
+                var dtComponent = Helper.GetDateTimeComponent(dt, c);
+                var boundComponent = Helper.GetDateTimeComponent(bound, c);
+                switch (direction)
+                {
+                    case CalculationDirection.Next:
+                        if (dtComponent < boundComponent)
+                            return true;
+                        if (dtComponent > boundComponent)
+                            return false;
+                        break;
+                    case CalculationDirection.Previous:
+                        if (dtComponent > boundComponent)
+                            return true;
+                        if (dtComponent < boundComponent)
+                            return false;
+                        break;
+                    default:
+                        throw new NotSupportedException(nameof(direction));
+                }
             }
 
-            // Cannot proceed if the starting point in time is already at the maximum.
-            if (Helper.GetDateTimeComponent(start, component) == Helper.GetDateTimeComponent(bound, component))
-                return false;
-
-            // Cannot proceed if this pattern requests a next date & time out of bounds.
+            // All higher ranked date & time components are within the bound. Now test whether the new
+            // component value is also within the bound.
             switch (direction)
             {
                 case CalculationDirection.Next:
-                    if (componentValue > Helper.GetDateTimeComponent(bound, component))
-                        return false;
+                    if (componentValue <= Helper.GetDateTimeComponent(bound, component))
+                        return true;
                     break;
                 case CalculationDirection.Previous:
-                    if (componentValue < Helper.GetDateTimeComponent(bound, component))
-                        return false;
+                    if (componentValue >= Helper.GetDateTimeComponent(bound, component))
+                        return true;
                     break;
                 default:
                     throw new NotSupportedException(nameof(direction));
             }
 
-            return true;
+            // Obviously the component value is not within the bound, thus report not within the bound.
+            return false;
         }
 
+        /// <summary>
+        /// Enumeration of calculation directions.
+        /// </summary>
         public enum CalculationDirection
         {
+            /// <summary>
+            /// Ahead to the future.
+            /// </summary>
             Next,
+
+            /// <summary>
+            /// Back to the past.
+            /// </summary>
             Previous,
         }
     }

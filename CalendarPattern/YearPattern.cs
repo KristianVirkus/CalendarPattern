@@ -40,7 +40,7 @@ namespace CalendarPattern
                 now = TimeZoneInfo.ConvertTime(now, tz);
                 var candidate = new DateTime(this.Year, 01, 01, 00, 00, 00, now.Kind);
 
-                if (!Helper.ComplyWithBound(now, candidate, DateTime.MaxValue, DateTimeComponent.Year, this.Year, Helper.CalculationDirection.Next)
+                if (!Helper.ComplyWithBound(candidate, DateTime.MaxValue, DateTimeComponent.Year, this.Year, Helper.CalculationDirection.Next)
                     || now.Year >= this.Year)
                 {
                     return null;
@@ -62,7 +62,7 @@ namespace CalendarPattern
                 now = TimeZoneInfo.ConvertTime(now, tz);
                 var candidate = new DateTime(this.Year, 01, 01, 00, 00, 00, now.Kind);
 
-                if (!Helper.ComplyWithBound(now, candidate, DateTime.MinValue, DateTimeComponent.Year, this.Year, Helper.CalculationDirection.Previous)
+                if (!Helper.ComplyWithBound(candidate, DateTime.MinValue, DateTimeComponent.Year, this.Year, Helper.CalculationDirection.Previous)
                     || now.Year <= this.Year)
                 {
                     return null;

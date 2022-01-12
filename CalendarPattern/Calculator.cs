@@ -7,37 +7,32 @@ namespace CalendarPattern
     /// <summary>
     /// Implements a calculator for next and previous date & times matching some patterns.
     /// </summary>
-    public static class Calculator
+    public class Calculator : ICalculator
     {
         /// <summary>
-        /// Calculates the next point in time when all patterns match.
+        /// Gets the calculator's default instance.
         /// </summary>
-        /// <param name="patterns">The date & time patterns to consider.</param>
-        /// <param name="startTime">The starting point in time.</param>
-        /// <param name="tz">The time zone calculations take place in.</param>
-        /// <returns>The previous date & time or null if there is no next date & time possible.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="patterns"/> or
-        ///     <paramref name="tz"/> is null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="patterns"/> is empty.</exception>
-        public static DateTime? Next(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz)
-            => Next(patterns, startTime, tz, null, null);
+        public static readonly Calculator Default;
 
         /// <summary>
-        /// Calculates the next point in time when all patterns match.
+        /// Initializes the static instance of the class <see cref="Calculator"/>.
         /// </summary>
-        /// <param name="patterns">The date & time patterns to consider.</param>
-        /// <param name="startTime">The starting point in time.</param>
-        /// <param name="tz">The time zone calculations take place in.</param>
-        /// <param name="edge">The requested date & time range edge.</param>
-        /// <returns>The previous date & time or null if there is no next date & time possible.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="patterns"/> or
-        ///     <paramref name="tz"/> is null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="patterns"/> is empty.</exception>
-        public static DateTime? Next(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz, DateTimeRangeEdge edge)
+        static Calculator()
+        {
+            Default = new Calculator();
+        }
+
+        /// <inheritdoc/>
+        public DateTime? Next(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz)
+            => Next(patterns, startTime, tz, null, null);
+
+        /// <inheritdoc/>
+        public DateTime? Next(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz, DateTimeRangeEdge edge)
             => Next(patterns, startTime, tz, edge, null);
 
         /// <summary>
-        /// Calculates the next point in time when all patterns match.
+        /// Calculates the next point in time when all patterns match and performs edge alignment of all
+        /// lower ranked date & time components as affected by the specified patterns if requested.
         /// </summary>
         /// <param name="patterns">The date & time patterns to consider.</param>
         /// <param name="startTime">The starting point in time.</param>
@@ -74,7 +69,7 @@ namespace CalendarPattern
                     return timeResult;
                 }
 
-                // Get alternatives (previous times) for patterns currently not matching.
+                // Get alternatives (next times) for patterns currently not matching.
                 tempTimeResult = getTime(patterns.Where(p => !p.Matches(timeResult)), p => p.Next(timeResult, tz), patternDt => patternDt - timeResult, debugIterationCallback);
                 if (tempTimeResult is null)
                     return null;
@@ -83,35 +78,17 @@ namespace CalendarPattern
             }
         }
 
-        /// <summary>
-        /// Calculates the previous point in time when all patterns match.
-        /// </summary>
-        /// <param name="patterns">The date & time patterns to consider.</param>
-        /// <param name="startTime">The starting point in time.</param>
-        /// <param name="tz">The time zone calculations take place in.</param>
-        /// <returns>The previous date & time or null if there is no previous date & time possible.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="patterns"/> or
-        ///     <paramref name="tz"/> is null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="patterns"/> is empty.</exception>
-        public static DateTime? Previous(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz)
+        /// <inheritdoc/>
+        public DateTime? Previous(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz)
             => Previous(patterns, startTime, tz, null, null);
 
-        /// <summary>
-        /// Calculates the previous point in time when all patterns match.
-        /// </summary>
-        /// <param name="patterns">The date & time patterns to consider.</param>
-        /// <param name="startTime">The starting point in time.</param>
-        /// <param name="tz">The time zone calculations take place in.</param>
-        /// <param name="edge">The requested date & time range edge.</param>
-        /// <returns>The previous date & time or null if there is no previous date & time possible.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="patterns"/> or
-        ///     <paramref name="tz"/> is null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="patterns"/> is empty.</exception>
-        public static DateTime? Previous(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz, DateTimeRangeEdge edge)
+        /// <inheritdoc/>
+        public DateTime? Previous(IEnumerable<IDateTimePattern> patterns, DateTime startTime, TimeZoneInfo tz, DateTimeRangeEdge edge)
             => Previous(patterns, startTime, tz, edge, null);
 
         /// <summary>
-        /// Calculates the previous point in time when all patterns match.
+        /// Calculates the previous point in time when all patterns match and performs edge alignment of all
+        /// lower ranked date & time components as affected by the specified patterns if requested.
         /// </summary>
         /// <param name="patterns">The date & time patterns to consider.</param>
         /// <param name="startTime">The starting point in time.</param>
@@ -157,6 +134,16 @@ namespace CalendarPattern
             }
         }
 
+        /// <summary>
+        /// Gets the nearest next time from multiple alternatives (from patterns.)
+        /// </summary>
+        /// <param name="patterns">The date & time patterns.</param>
+        /// <param name="getTimeCallback">The callback method to get a time for a pattern.</param>
+        /// <param name="distanceCallback">The callback method to determine the distance between the
+        ///     newly calculated pattern date & time and some reference date & time.</param>
+        /// <param name="debugIterationCallback">The callback method to invoke for tracing
+        ///     calculation steps.</param>
+        /// <returns>The nearest next time from the patterns.</returns>
         private static DateTime? getTime(IEnumerable<IDateTimePattern> patterns,
             Func<IDateTimePattern, DateTime?> getTimeCallback, Func<DateTime, TimeSpan> distanceCallback,
             Action<DebugIterationEventArgs> debugIterationCallback)
@@ -182,6 +169,9 @@ namespace CalendarPattern
             return nearestFirstAlternative.Dt.Value;
         }
 
+        /// <summary>
+        /// Internal class for debugging purposes.
+        /// </summary>
         internal class PatternAlternative
         {
             public IPattern Pattern { get; set; }

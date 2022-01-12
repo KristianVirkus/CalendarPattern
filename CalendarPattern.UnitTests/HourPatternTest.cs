@@ -183,7 +183,7 @@ namespace CalendarPattern.UnitTests
             {
                 // Arrange
                 var sut = new HourPattern((byte)0);
-                var now = DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc);
+                var now = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
                 var tz = TimeZoneInfo.Utc;
 
                 // Act

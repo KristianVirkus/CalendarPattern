@@ -38,12 +38,21 @@ namespace CalendarPattern
             {
                 var candidate = TimeZoneInfo.ConvertTime(now, tz);
                 var firstIteration = true;
-
+                
+                // Progress candidate date & time until the next candidate would be too late and as
+                // long as the current candidate would be invalid but only until the bound would be
+                // exceeded.
                 while (true)
                 {
-                    if (!Helper.ComplyWithBound(now, candidate, DateTime.MaxValue, DateTimeComponent.Month, this.Month, Helper.CalculationDirection.Next))
+                    // Tricky: Cannot create DateTime instance with wanted component because it might fail due to
+                    // being an invalid date & time at all (e.g. Feb 31 or leap year.) Instead, check last known valid
+                    // date & time candidate along with the wanted date & time component as isolated number. If the
+                    // candidate exceeds the bound then abort with no result.
+                    if (!Helper.ComplyWithBound(candidate, DateTime.MaxValue, DateTimeComponent.Month, this.Month, Helper.CalculationDirection.Next))
                         return null;
 
+                    // Move to next candidate if this one is both the first attempt and has the requested component's value already
+                    // or move to next candidate if the candidate is invalid for the given time zone, i.e. regarding daylight saving.
                     if ((candidate.Month >= this.Month && firstIteration)
                         || tz.IsInvalidTime(new DateTime(candidate.Year, this.Month, 01, 00, 00, 00, candidate.Kind)))
                     {
@@ -74,7 +83,7 @@ namespace CalendarPattern
 
                 while (true)
                 {
-                    if (!Helper.ComplyWithBound(now, candidate, DateTime.MinValue, DateTimeComponent.Month, this.Month, Helper.CalculationDirection.Previous))
+                    if (!Helper.ComplyWithBound(candidate, DateTime.MinValue, DateTimeComponent.Month, this.Month, Helper.CalculationDirection.Previous))
                         return null;
 
                     if ((candidate.Month <= this.Month && firstIteration)
