@@ -39,6 +39,31 @@ namespace CalendarPattern.UnitTests
             }
         }
 
+        public class Matching
+        {
+            [Test]
+            public void SameMonth_Should_Match()
+            {
+                // Arrange
+                var sut = new MonthPattern(month: 8);
+
+                // Act
+                // Assert
+                sut.Matches(dt: new DateTime(2022, 08, 18)).Should().BeTrue();
+            }
+
+            [Test]
+            public void OtherMonth_Should_NotMatch()
+            {
+                // Arrange
+                var sut = new MonthPattern(month: 12);
+
+                // Act
+                // Assert
+                sut.Matches(dt: new DateTime(2022, 08, 18)).Should().BeFalse();
+            }
+        }
+
         public class Next
         {
             [Test]

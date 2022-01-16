@@ -29,24 +29,24 @@ namespace CalendarPattern
         public ushort Year { get; }
 
         /// <inheritdoc/>
-        public bool Matches(DateTime now)
-            => now.Year == this.Year;
+        public bool Matches(DateTime dt)
+            => dt.Year == this.Year;
 
         /// <inheritdoc/>
-        public DateTime? Next(DateTime now, TimeZoneInfo tz)
+        public DateTime? Next(DateTime after, TimeZoneInfo tz)
         {
             try
             {
-                now = TimeZoneInfo.ConvertTime(now, tz);
-                var candidate = new DateTime(this.Year, 01, 01, 00, 00, 00, now.Kind);
+                after = TimeZoneInfo.ConvertTime(after, tz);
+                var candidate = new DateTime(this.Year, 01, 01, 00, 00, 00, after.Kind);
 
                 if (!Helper.ComplyWithBound(candidate, DateTime.MaxValue, DateTimeComponent.Year, this.Year, Helper.CalculationDirection.Next)
-                    || now.Year >= this.Year)
+                    || after.Year >= this.Year)
                 {
                     return null;
                 }
 
-                return new DateTime(this.Year, 01, 01, 00, 00, 00, now.Kind);
+                return new DateTime(this.Year, 01, 01, 00, 00, 00, after.Kind);
             }
             catch
             {
@@ -55,20 +55,20 @@ namespace CalendarPattern
         }
 
         /// <inheritdoc/>
-        public DateTime? Previous(DateTime now, TimeZoneInfo tz)
+        public DateTime? Previous(DateTime before, TimeZoneInfo tz)
         {
             try
             {
-                now = TimeZoneInfo.ConvertTime(now, tz);
-                var candidate = new DateTime(this.Year, 01, 01, 00, 00, 00, now.Kind);
+                before = TimeZoneInfo.ConvertTime(before, tz);
+                var candidate = new DateTime(this.Year, 01, 01, 00, 00, 00, before.Kind);
 
                 if (!Helper.ComplyWithBound(candidate, DateTime.MinValue, DateTimeComponent.Year, this.Year, Helper.CalculationDirection.Previous)
-                    || now.Year <= this.Year)
+                    || before.Year <= this.Year)
                 {
                     return null;
                 }
 
-                return new DateTime(this.Year, 12, 31, 23, 59, 59, now.Kind).Add(Constants.SecondMaximum);
+                return new DateTime(this.Year, 12, 31, 23, 59, 59, before.Kind).Add(Constants.SecondMaximum);
             }
             catch
             {

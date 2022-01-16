@@ -28,15 +28,15 @@ namespace CalendarPattern
         public byte Hour { get; }
 
         /// <inheritdoc/>
-        public bool Matches(DateTime now)
-            => now.Hour == this.Hour;
+        public bool Matches(DateTime dt)
+            => dt.Hour == this.Hour;
 
         /// <inheritdoc/>
-        public DateTime? Next(DateTime now, TimeZoneInfo tz)
+        public DateTime? Next(DateTime after, TimeZoneInfo tz)
         {
             try
             {
-                var candidate = TimeZoneInfo.ConvertTime(now, tz);
+                var candidate = TimeZoneInfo.ConvertTime(after, tz);
                 var firstIteration = true;
 
                 while (true)
@@ -65,11 +65,11 @@ namespace CalendarPattern
         }
 
         /// <inheritdoc/>
-        public DateTime? Previous(DateTime now, TimeZoneInfo tz)
+        public DateTime? Previous(DateTime before, TimeZoneInfo tz)
         {
             try
             {
-                var candidate = TimeZoneInfo.ConvertTime(now, tz);
+                var candidate = TimeZoneInfo.ConvertTime(before, tz);
                 var firstIteration = true;
 
                 while (true)
@@ -89,7 +89,7 @@ namespace CalendarPattern
                     }
                 }
 
-                return new DateTime(candidate.Year, candidate.Month, candidate.Day, this.Hour, 00, 00, now.Kind).Add(Constants.HourMaximum);
+                return new DateTime(candidate.Year, candidate.Month, candidate.Day, this.Hour, 00, 00, before.Kind).Add(Constants.HourMaximum);
             }
             catch
             {

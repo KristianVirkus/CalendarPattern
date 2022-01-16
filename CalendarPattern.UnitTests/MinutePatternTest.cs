@@ -38,6 +38,31 @@ namespace CalendarPattern.UnitTests
             }
         }
 
+        public class Matching
+        {
+            [Test]
+            public void SameMinute_Should_Match()
+            {
+                // Arrange
+                var sut = new MinutePattern(minute: 30);
+
+                // Act
+                // Assert
+                sut.Matches(dt: new DateTime(2022, 01, 18, 12, 30, 00)).Should().BeTrue();
+            }
+
+            [Test]
+            public void OtherMinute_Should_NotMatch()
+            {
+                // Arrange
+                var sut = new MinutePattern(minute: 00);
+
+                // Act
+                // Assert
+                sut.Matches(dt: new DateTime(2022, 01, 18, 12, 30, 00)).Should().BeFalse();
+            }
+        }
+
         public class Next
         {
             [Test]

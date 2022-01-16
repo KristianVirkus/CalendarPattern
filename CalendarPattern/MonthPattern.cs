@@ -28,15 +28,15 @@ namespace CalendarPattern
         public byte Month { get; }
 
         /// <inheritdoc/>
-        public bool Matches(DateTime now)
-            => now.Month == this.Month;
+        public bool Matches(DateTime dt)
+            => dt.Month == this.Month;
 
         /// <inheritdoc/>
-        public DateTime? Next(DateTime now, TimeZoneInfo tz)
+        public DateTime? Next(DateTime after, TimeZoneInfo tz)
         {
             try
             {
-                var candidate = TimeZoneInfo.ConvertTime(now, tz);
+                var candidate = TimeZoneInfo.ConvertTime(after, tz);
                 var firstIteration = true;
                 
                 // Progress candidate date & time until the next candidate would be too late and as
@@ -74,11 +74,11 @@ namespace CalendarPattern
         }
 
         /// <inheritdoc/>
-        public DateTime? Previous(DateTime now, TimeZoneInfo tz)
+        public DateTime? Previous(DateTime before, TimeZoneInfo tz)
         {
             try
             {
-                var candidate = TimeZoneInfo.ConvertTime(now, tz);
+                var candidate = TimeZoneInfo.ConvertTime(before, tz);
                 var firstIteration = true;
 
                 while (true)

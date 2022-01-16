@@ -27,7 +27,7 @@ namespace CalendarPattern.UnitTests
             {
                 // Arrange
                 // Act & Assert
-                Assert.Throws<ArgumentOutOfRangeException>(() => new DayPattern(0));
+                Assert.Throws<ArgumentOutOfRangeException>(() => new DayPattern(day: 0));
             }
 
             [Test]
@@ -35,7 +35,32 @@ namespace CalendarPattern.UnitTests
             {
                 // Arrange
                 // Act & Assert
-                Assert.Throws<ArgumentOutOfRangeException>(() => new DayPattern(32));
+                Assert.Throws<ArgumentOutOfRangeException>(() => new DayPattern(day: 32));
+            }
+        }
+
+        public class Matching
+        {
+            [Test]
+            public void SameDay_Should_Match()
+            {
+                // Arrange
+                var sut = new DayPattern(day: 14);
+
+                // Act
+                // Assert
+                sut.Matches(dt: new DateTime(2022, 01, 14)).Should().BeTrue();
+            }
+
+            [Test]
+            public void OtherDay_Should_NotMatch()
+            {
+                // Arrange
+                var sut = new DayPattern(day: 1);
+
+                // Act
+                // Assert
+                sut.Matches(dt: new DateTime(2022, 01, 14)).Should().BeFalse();
             }
         }
 
@@ -45,7 +70,7 @@ namespace CalendarPattern.UnitTests
             public void AtBeginningOfDayWhileSameDayWanted_Should_AdvanceToBeginningOfSameDayOfNextMonth()
             {
                 // Arrange
-                var sut = new DayPattern(day: (byte)14);
+                var sut = new DayPattern((byte)14);
                 var now = new DateTime(2000, 06, 14, 00, 00, 00, DateTimeKind.Utc);
                 var tz = TimeZoneInfo.Utc;
 
@@ -60,7 +85,7 @@ namespace CalendarPattern.UnitTests
             public void AtMiddleOfDayWhileNextDayWanted_Should_AdvanceToBeginningOfNextDay()
             {
                 // Arrange
-                var sut = new DayPattern(day: (byte)5);
+                var sut = new DayPattern((byte)5);
                 var now = new DateTime(2000, 06, 04, 12, 00, 00, DateTimeKind.Utc);
                 var tz = TimeZoneInfo.Utc;
 
@@ -75,7 +100,7 @@ namespace CalendarPattern.UnitTests
             public void At14thOfMonthWhile1stWanted_Should_AdvanceToBeginningOfNextMonth()
             {
                 // Arrange
-                var sut = new DayPattern(day: (byte)1);
+                var sut = new DayPattern((byte)1);
                 var now = new DateTime(2000, 06, 14, 00, 00, 00, DateTimeKind.Utc);
                 var tz = TimeZoneInfo.Utc;
 
@@ -90,7 +115,7 @@ namespace CalendarPattern.UnitTests
             public void At31thOfMonthWhileAny31thWanted_Should_AlwaysAdvanceToNext31thSkippingTwoMonth()
             {
                 // Arrange
-                var sut = new DayPattern(day: (byte)31);
+                var sut = new DayPattern((byte)31);
                 var now = new DateTime(2000, 03, 31, 00, 00, 00, DateTimeKind.Utc);
                 var tz = TimeZoneInfo.Utc;
 
@@ -105,7 +130,7 @@ namespace CalendarPattern.UnitTests
             public void At31thOfJulyWhileAny31thWanted_Should_AlwaysAdvanceToNext31thInAugust()
             {
                 // Arrange
-                var sut = new DayPattern(day: (byte)31);
+                var sut = new DayPattern((byte)31);
                 var now = new DateTime(2000, 07, 31, 00, 00, 00, DateTimeKind.Utc);
                 var tz = TimeZoneInfo.Utc;
 
@@ -120,7 +145,7 @@ namespace CalendarPattern.UnitTests
             public void At01Feb2000WhileAny31thWanted_Should_AdvanceTo31Mar2000()
             {
                 // Arrange
-                var sut = new DayPattern(day: (byte)31);
+                var sut = new DayPattern((byte)31);
                 var now = new DateTime(2000, 02, 01, 00, 00, 00, DateTimeKind.Utc);
                 var tz = TimeZoneInfo.Utc;
 
@@ -153,7 +178,7 @@ namespace CalendarPattern.UnitTests
             public void AtEndOfDayWhileSameDayWanted_Should_AdvanceToEndOfSameDayOfPreviousMonth()
             {
                 // Arrange
-                var sut = new DayPattern(day: (byte)14);
+                var sut = new DayPattern((byte)14);
                 var now = new DateTime(2000, 06, 14, 23, 59, 59, DateTimeKind.Utc).Add(Constants.SecondMaximum);
                 var tz = TimeZoneInfo.Utc;
 
@@ -168,7 +193,7 @@ namespace CalendarPattern.UnitTests
             public void AtMiddleOfDayWhilePreviousDayWanted_Should_AdvanceToEndOfPreviousDay()
             {
                 // Arrange
-                var sut = new DayPattern(day: (byte)5);
+                var sut = new DayPattern((byte)5);
                 var now = new DateTime(2000, 06, 06, 12, 00, 00, DateTimeKind.Utc);
                 var tz = TimeZoneInfo.Utc;
 
@@ -183,7 +208,7 @@ namespace CalendarPattern.UnitTests
             public void At1stOfMonthWhile31thWanted_Should_AdvanceToEndOfPreviousMonth()
             {
                 // Arrange
-                var sut = new DayPattern(day: (byte)31);
+                var sut = new DayPattern((byte)31);
                 var now = new DateTime(2000, 06, 01, 12, 00, 00, DateTimeKind.Utc);
                 var tz = TimeZoneInfo.Utc;
 
@@ -198,7 +223,7 @@ namespace CalendarPattern.UnitTests
             public void At31thOfMonthWhileAny31thWanted_Should_AlwaysAdvanceToPrevious31thSkippingTwoMonth()
             {
                 // Arrange
-                var sut = new DayPattern(day: (byte)31);
+                var sut = new DayPattern((byte)31);
                 var now = new DateTime(2000, 05, 31, 00, 00, 00, DateTimeKind.Utc);
                 var tz = TimeZoneInfo.Utc;
 
@@ -213,7 +238,7 @@ namespace CalendarPattern.UnitTests
             public void At31thOfAugustWhileAny31thWanted_Should_AlwaysAdvanceToPrevious31thInJuly()
             {
                 // Arrange
-                var sut = new DayPattern(day: (byte)31);
+                var sut = new DayPattern((byte)31);
                 var now = new DateTime(2000, 08, 31, 00, 00, 00, DateTimeKind.Utc);
                 var tz = TimeZoneInfo.Utc;
 

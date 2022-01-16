@@ -39,6 +39,31 @@ namespace CalendarPattern.UnitTests
             }
         }
 
+        public class Matching
+        {
+            [Test]
+            public void SameYear_Should_Match()
+            {
+                // Arrange
+                var sut = new YearPattern(year: 2000);
+
+                // Act
+                // Assert
+                sut.Matches(dt: new DateTime(2000, 01, 01)).Should().BeTrue();
+            }
+
+            [Test]
+            public void OtherYear_Should_NotMatch()
+            {
+                // Arrange
+                var sut = new YearPattern(year: 2000);
+
+                // Act
+                // Assert
+                sut.Matches(dt: new DateTime(2022, 01, 01)).Should().BeFalse();
+            }
+        }
+
         public class Next
         {
             [Test]

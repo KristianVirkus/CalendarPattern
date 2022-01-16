@@ -433,6 +433,27 @@ namespace CalendarPattern.UnitTests
                     resultPublicWithoutEdge.Should().NotBe(resultPublicWithEdgeEnd);
                     resultPublicWithEdgeEnd.Should().Be(resultInternalWithEdgeEnd);
                 }
+
+                [Test]
+                public void ImpossibleToAchievePattern_ShouldReturn_NullInNoTime()
+                {
+                    // Arrange
+                    var yearPattern = new YearPattern(year: 4099);
+                    var monthPattern = new MonthPattern(month: 12);
+                    var dayPattern = new DayPattern(day: 31);
+                    var dayOfWeekPattern = new DayOfWeekPattern(dayOfWeek: DayOfWeek.Friday);
+                    var now = DateTime.MinValue;
+                    var tz = TimeZoneInfo.Utc;
+
+                    // Act
+                    var sw = new Stopwatch();
+                    sw.Start();
+                    var result = Calculator.Default.Next(patterns: new IDateTimePattern[] { yearPattern, monthPattern, dayPattern, dayOfWeekPattern }, now, tz);
+
+                    // Assert
+                    sw.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(1));
+                    result.Should().BeNull();
+                }
             }
         }
 
@@ -845,6 +866,27 @@ namespace CalendarPattern.UnitTests
                     sw.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(1));
                     resultPublicWithoutEdge.Should().NotBe(resultPublicWithEdgeBeginning);
                     resultPublicWithEdgeBeginning.Should().Be(resultInternalWithEdgeBeginning);
+                }
+
+                [Test]
+                public void ImpossibleToAchievePattern_ShouldReturn_NullInNoTime()
+                {
+                    // Arrange
+                    var yearPattern = new YearPattern(year: 1800);
+                    var monthPattern = new MonthPattern(month: 1);
+                    var dayPattern = new DayPattern(day: 1);
+                    var dayOfWeekPattern = new DayOfWeekPattern(dayOfWeek: DayOfWeek.Tuesday);
+                    var now = DateTime.MaxValue;
+                    var tz = TimeZoneInfo.Utc;
+
+                    // Act
+                    var sw = new Stopwatch();
+                    sw.Start();
+                    var result = Calculator.Default.Previous(patterns: new IDateTimePattern[] { yearPattern, monthPattern, dayPattern, dayOfWeekPattern }, now, tz);
+
+                    // Assert
+                    sw.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(1));
+                    result.Should().BeNull();
                 }
             }
         }

@@ -31,6 +31,31 @@ namespace CalendarPattern.UnitTests
             }
         }
 
+        public class Matching
+        {
+            [Test]
+            public void SameSecond_Should_Match()
+            {
+                // Arrange
+                var sut = new SecondPattern(second: 30);
+
+                // Act
+                // Assert
+                sut.Matches(dt: new DateTime(2022, 01, 18, 12, 00, 30)).Should().BeTrue();
+            }
+
+            [Test]
+            public void OtherSecond_Should_NotMatch()
+            {
+                // Arrange
+                var sut = new SecondPattern(second: 30);
+
+                // Act
+                // Assert
+                sut.Matches(dt: new DateTime(2022, 01, 18, 12, 00, 00)).Should().BeFalse();
+            }
+        }
+
         public class Next
         {
             [Test]
