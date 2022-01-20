@@ -137,6 +137,11 @@ namespace CalendarPattern
             return dt;
         }
 
+        /// <summary>
+        /// Determines the number of ticks of a date & time below 999 milliseconds.
+        /// </summary>
+        /// <param name="dt">The date & time.</param>
+        /// <returns>The number of ticks below 999 milliseconds.</returns>
         public static TimeSpan GetAdditionalTicks(DateTime dt)
             => TimeSpan.FromTicks(dt.Ticks % 10000);
 

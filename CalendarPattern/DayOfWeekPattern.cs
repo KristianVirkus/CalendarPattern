@@ -34,11 +34,11 @@ namespace CalendarPattern
             => dt.DayOfWeek == this.DayOfWeek;
 
         /// <inheritdoc/>
-        public DateTime? Next(DateTime now, TimeZoneInfo tz)
+        public DateTime? Next(DateTime after, TimeZoneInfo tz)
         {
             try
             {
-                var candidate = TimeZoneInfo.ConvertTime(now, tz);
+                var candidate = TimeZoneInfo.ConvertTime(after, tz);
                 
                 // Determine number of days to add until wanted day of week.
                 // Make sure any days are added and the initial candidate is
@@ -66,11 +66,11 @@ namespace CalendarPattern
         }
 
         /// <inheritdoc/>
-        public DateTime? Previous(DateTime now, TimeZoneInfo tz)
+        public DateTime? Previous(DateTime before, TimeZoneInfo tz)
         {
             try
             {
-                var candidate = TimeZoneInfo.ConvertTime(now, tz);
+                var candidate = TimeZoneInfo.ConvertTime(before, tz);
 
                 // Determine number of days to subtract until wanted day of week.
                 // Make sure any days are subtracted and the initial candidate is

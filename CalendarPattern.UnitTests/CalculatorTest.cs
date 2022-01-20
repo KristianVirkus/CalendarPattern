@@ -246,6 +246,22 @@ namespace CalendarPattern.UnitTests
                             // Assert
                             result.Should().Be(new DateTime(2024, 02, 29, 00, 00, 00, DateTimeKind.Utc));
                         }
+
+                        [Test]
+                        public void At31FebWanted_ShouldReturn_Null()
+                        {
+                            // Arrange
+                            var monthPattern = new MonthPattern(month: (byte)2);
+                            var dayPattern = new DayPattern(day: (byte)31);
+                            var now = new DateTime(2020, 01, 01, 00, 00, 00, DateTimeKind.Utc);
+                            var tz = TimeZoneInfo.Utc;
+
+                            // Act
+                            var result = CallNext(patterns: new IDateTimePattern[] { monthPattern, dayPattern }, now, tz, DateTimeRangeEdge.Beginning);
+
+                            // Assert
+                            result.Should().BeNull();
+                        }
                     }
                 }
 
@@ -393,7 +409,7 @@ namespace CalendarPattern.UnitTests
             public class WithoutEdgeAlignment
             {
                 [Test]
-                public void Action_Should_AdvanceToWantedTime()
+                public void Next_Should_AdvanceToWantedTime()
                 {
                     // Arrange
                     var yearPattern = new YearPattern(year: 2001);
@@ -597,6 +613,25 @@ namespace CalendarPattern.UnitTests
                             // Assert
                             sw.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(1));
                             result.Should().Be(new DateTime(2000, 06, 14, 12, 30, 02, DateTimeKind.Utc));
+                        }
+                    }
+
+                    public class Day
+                    {
+                        [Test]
+                        public void At31FebWanted_ShouldReturn_Null()
+                        {
+                            // Arrange
+                            var monthPattern = new MonthPattern(month: (byte)2);
+                            var dayPattern = new DayPattern(day: (byte)31);
+                            var now = new DateTime(2020, 05, 01, 00, 00, 00, DateTimeKind.Utc);
+                            var tz = TimeZoneInfo.Utc;
+
+                            // Act
+                            var result = CallPrevious(patterns: new IDateTimePattern[] { monthPattern, dayPattern }, now, tz, DateTimeRangeEdge.End);
+
+                            // Assert
+                            result.Should().BeNull();
                         }
                     }
                 }
